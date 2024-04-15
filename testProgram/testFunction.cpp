@@ -1,8 +1,6 @@
 #include "testFunction.hpp"
-#include <fstream>
 #include <iostream>
 #include <opencp.hpp>
-#include<immintrin.h>
 
 #pragma comment(lib,"opencp.lib")
 

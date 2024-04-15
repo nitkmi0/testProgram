@@ -6,17 +6,6 @@ using namespace cv;
 using namespace cp;
 using namespace std;
 
-class TestClass
-{
-private:
-	
-
-public:
-	void testDiff();
-	void isCompleteMatch(Mat& src, Mat& ref);
-	void testPointer(Mat& src, Mat& dest);
-};
-
 int sub(int x, int y);
 void testGuiDiff(Mat& src, Mat& dest);
 void isSameImage(Mat& src, Mat& ref);
