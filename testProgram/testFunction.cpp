@@ -133,3 +133,77 @@ void AdaptiveGaussianFilter(cv::Mat& src, cv::Mat& dispMap, cv::Mat& dest, const
     free(space_pos);
     free(space_offset);
 }
+
+void testAdaptiveGaussianFilter(cv::Mat& src, cv::Mat& dispMap, cv::Mat& dest)
+{
+    Mat src32F(src.size(), CV_32FC3);
+    Mat dest32F(src.size(), CV_32FC3);
+    src.convertTo(src32F, CV_32FC3, 1.f / 255.f);
+
+    string wname = "a";
+    namedWindow(wname, WINDOW_AUTOSIZE);
+    imshow("src", src);
+
+    struct TrackbarConfig {
+        const int initial;
+        const int min;
+        const int max;
+        const string name;
+    };
+
+    TrackbarConfig rConfig = { 0, 10, 0, "r" };
+    TrackbarConfig inforcusDispConfig = { 0, 255, 0, "inforcus_disp" };
+    TrackbarConfig sigmaBaseConfig = { 0, 100, 0, "sigma_base(*0.1)" };
+    TrackbarConfig incSigmaConfig = { 0, 100, 0, "inc_sigma(*0.01)" };
+
+    // 初期化
+    int r = rConfig.initial;
+    int inforcusDisp = inforcusDispConfig.initial;
+    int sigmaBaseRaw = sigmaBaseConfig.initial;
+    int incSigmaRaw = incSigmaConfig.initial;
+
+    // トラックバーの追加
+    createTrackbar(rConfig.name, wname, &r, rConfig.max);
+    setTrackbarMin(rConfig.name, wname, rConfig.min);
+
+    createTrackbar(inforcusDispConfig.name, wname, &inforcusDisp, inforcusDispConfig.max);
+    setTrackbarMin(inforcusDispConfig.name, wname, inforcusDispConfig.min);
+
+    createTrackbar(sigmaBaseConfig.name, wname, &sigmaBaseRaw, sigmaBaseConfig.max);
+    setTrackbarMin(sigmaBaseConfig.name, wname, sigmaBaseConfig.min);
+
+    createTrackbar(incSigmaConfig.name, wname, &incSigmaRaw, incSigmaConfig.max);
+    setTrackbarMin(incSigmaConfig.name, wname, incSigmaConfig.min);
+
+    int key = 0;
+    while (key != 'q')
+    {
+        float sigmaBase = sigmaBaseRaw / 10.f;
+        float incSigma = incSigmaRaw / 100.f;
+
+        AdaptiveGaussianFilter(src32F, dispMap, dest32F, r, sigmaBase, incSigma, inforcusDisp);
+        dest32F.convertTo(dest, CV_8UC3, 255.f);
+
+        imshow(wname, dest);
+        key = waitKey(1);
+
+        if (key == 'r')
+        {
+            setTrackbarPos(rConfig.name, wname, rConfig.initial);
+            setTrackbarPos(inforcusDispConfig.name, wname, inforcusDispConfig.initial);
+            setTrackbarPos(sigmaBaseConfig.name, wname, sigmaBaseConfig.initial);
+            setTrackbarPos(incSigmaConfig.name, wname, incSigmaConfig.initial);
+        }
+    }
+    cv::destroyWindow(wname);
+}
+
+void testPlot()
+{
+    Plot pt;
+    for (int y = 0; y < 10; y++)
+    {
+        pt.push_back(y, y * y);
+    }
+    pt.plot("testPlot", true);
+}
